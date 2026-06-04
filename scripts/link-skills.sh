@@ -13,6 +13,7 @@ for skill_dir in "$REPO_ROOT"/*/; do
     scripts|.git) continue ;;
   esac
   test -f "${skill_dir}SKILL.md" || continue
+  rm -rf "$TARGET/$name"
   ln -sfn "$skill_dir" "$TARGET/$name"
   echo "linked: $TARGET/$name -> $skill_dir"
 done
