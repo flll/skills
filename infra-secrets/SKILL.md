@@ -51,7 +51,7 @@ gh auth status
 cd ~/.cursor/skills-repo && git pull && ./scripts/link-skills.sh
 ```
 
-**GitHub 操作** — `gh pr create`, `gh repo view`, `git push`（HTTPS + gh credential）
+**GitHub 操作** — `gh pr create`, `gh repo view`（`git push` は cursor-workflow の push 禁止に従う）
 
 ## Tailscale（汎用）
 
@@ -63,6 +63,10 @@ cd ~/.cursor/skills-repo && git pull && ./scripts/link-skills.sh
 
 - `CLOUDFLARE_API_TOKEN`: 通常 **User API Token**（ゾーン・権限を最小化）。`cfat_` は長期サービス向け。
 - `CLOUDFLARE_ACCOUNT_ID` はトークンと別。ダッシュボードの Account ID。
+
+## コミット・ブランチ
+
+アプリリポジトリでの commit / ブランチ判断 / push 禁止 → **[cursor-workflow](../cursor-workflow/SKILL.md)**（ここでは書かない）。
 
 ## やってはいけない
 

@@ -2,6 +2,13 @@
 
 Private Cursor Agent Skills。複数プロジェクト共通。プロジェクト固有の手順は各リポジトリに置く。
 
+## Skills
+
+| Skill | 用途 |
+|-------|------|
+| **cursor-workflow** | **必須** — プラン（絵文字）、遂行後のブランチ・commit、push 禁止 |
+| infra-secrets | 秘密・GSM・gh 認証（全プロジェクト） |
+
 ## Setup
 
 ```bash
