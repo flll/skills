@@ -54,7 +54,7 @@ gcloud secrets versions add cursor-secret \
 ~/.cursor/skills-repo/scripts/verify-skills.sh
 ```
 
-編集後は **flll/skills のみ** `git commit` + `git push`（日本語メッセージ）。アプリ repo への push は禁止。
+編集後は **flll/skills のみ** `git commit` + **能動的** `git push` + `sync-skills.sh`（日本語メッセージ）。**skills 以外への push は一切禁止**（ユーザーが amend する前提）→ [cursor-workflow](../cursor-workflow/SKILL.md)
 
 **GitHub 操作** — `gh pr create`, `gh repo view`（アプリ repo への `git push` は cursor-workflow に従い禁止）
 

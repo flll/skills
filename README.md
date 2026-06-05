@@ -6,7 +6,7 @@ Public Cursor Agent Skills。複数プロジェクト共通。プロジェクト
 
 | Skill | 用途 |
 |-------|------|
-| **cursor-workflow** | **必須** — プラン（絵文字）、遂行後のブランチ・**日本語** commit、アプリは push 禁止 |
+| **cursor-workflow** | **必須** — プラン（絵文字）、遂行後のブランチ・**日本語** commit。**push は flll/skills のみ能動的 OK**、それ以外はユーザー明示まで禁止 |
 | infra-secrets | 秘密・GSM・gh 認証（全プロジェクト） |
 
 ## Skills の読み込み方（スラッシュ不要）
@@ -46,16 +46,19 @@ curl -fsSL https://raw.githubusercontent.com/flll/skills/main/scripts/bootstrap-
 
 raw 例: `https://raw.githubusercontent.com/flll/skills/main/cursor-workflow/SKILL.md`
 
-## 編集後（skills リポジトリだけ push）
+## 編集後（skills リポジトリだけ能動的 push）
+
+エージェントは **flll/skills を編集したら聞かず** commit & push する（マルチマシン同期のため）。
 
 ```bash
 cd ~/.cursor/skills-repo
 git add -A
 git commit -m "変更内容を日本語で"
 git push
+~/.cursor/skills-repo/scripts/sync-skills.sh
 ```
 
-作業中のアプリリポジトリへの push は cursor-workflow の禁止ルールに従う。
+**skills 以外**（アプリ、OpenClaw 等）への `git push` は **エージェント禁止**。ユーザーは `--amend` 等のあと、自分のタイミングで push する。詳細は cursor-workflow。
 
 ## Layout
 

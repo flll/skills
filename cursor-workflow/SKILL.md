@@ -2,8 +2,9 @@
 name: cursor-workflow
 description: >-
   Mandatory for all Cursor projects. Emoji-rich plans, post-plan branch decision
-  and commit in Japanese (no push on app repos; active push on flll/skills only).
-  Use after plan execution, implementation completion, or when deciding branch/commit workflow.
+  and commit in Japanese. ONLY flll/skills may be pushed/synced proactively by the
+  agent; NEVER push any other repo unless the user explicitly asks in that turn
+  (user may git commit --amend). Use after plan execution or branch/commit workflow.
 ---
 
 # cursor-workflow
@@ -56,16 +57,34 @@ curl -fsSL https://raw.githubusercontent.com/flll/skills/main/scripts/bootstrap-
 4. HEREDOC で `git commit`
 5. フック失敗時は **amend せず** 修正して新規 commit
 
-### push ポリシー（二層）
+### push ポリシー（厳守・二層）
 
-| リポジトリ | push |
-|------------|------|
-| **作業中のアプリ等** | **NEVER**（ユーザーがそのターンで「push して」と明示するまで） |
-| **flll/skills**（`~/.cursor/skills-repo`） | **積極的に** commit 後 `git push`（マルチマシン同期のため） |
+**原則**: エージェントが `git push` してよいのは **flll/skills だけ**。それ以外は **ユーザーがそのターンで明示するまで絶対に push しない**。
 
-アプリ repo では `git push` / push 付き `gh pr create` を実行しない。完了報告で「push はしていません」とよい。
+| リポジトリ | エージェントの push | 理由 |
+|------------|---------------------|------|
+| **flll/skills**（`~/.cursor/skills-repo`） | **積極的に OK** — 編集後は commit → `git push` → 必要なら `sync-skills.sh` | マルチマシンで skills を正本同期するため。能動的 push が意味を持つ |
+| **skills 以外のすべて**（アプリ、OpenClaw、dotfiles 等） | **NEVER** | ユーザーは `git commit --amend` や履歴整理を自分のタイミングで行う。エージェントの push は不具合・競合の原因になる |
 
-Skills を編集したら **必ず** skills リポジトリで commit & push し、他マシンは `scripts/sync-skills.sh` で取り込む。
+**skills 以外で禁止する操作**（明示指示がない限り）:
+
+- `git push`（`--force` 含む一切）
+- `git push -u origin …`
+- `gh pr create` の前段としての push（PR 作成自体もユーザー明示時のみ）
+- 「念のため」「完了したので」などの理由での先回り push
+
+**skills で必須の流れ**（編集したら聞かず実行）:
+
+```bash
+cd ~/.cursor/skills-repo
+git add -A
+git commit -m "変更理由を日本語で"
+git push
+~/.cursor/skills-repo/scripts/sync-skills.sh   # ローカル ~/.cursor/skills へ反映
+~/.cursor/skills-repo/scripts/verify-skills.sh
+```
+
+**アプリ repo の完了報告**: コミットまで行った場合は「**push はしていません**（ご指定のタイミングでお願いします）」と明示する。push を促しすぎない。
 
 ## ブランチ判断
 
