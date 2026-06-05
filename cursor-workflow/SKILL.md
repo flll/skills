@@ -2,13 +2,19 @@
 name: cursor-workflow
 description: >-
   Mandatory for all Cursor projects. Emoji-rich plans, post-plan branch decision
-  and commit (no push unless user explicitly asks). Use after plan execution,
-  implementation completion, or when deciding branch/commit workflow.
+  and commit in Japanese (no push on app repos; active push on flll/skills only).
+  Use after plan execution, implementation completion, or when deciding branch/commit workflow.
 ---
 
 # cursor-workflow
 
 全プロジェクトで Cursor を使うときの **必須ワークフロー**。秘密管理は [infra-secrets](../infra-secrets/SKILL.md) に任せる。
+
+## Skills の読み込み（スラッシュ不要）
+
+- Cursor は `~/.cursor/skills/<name>/SKILL.md` を **索引**（name + description）し、タスクに関連するとき **全文を読む**
+- **`/skill-name` は任意**（明示したいときだけ）。会話開始だけでも description 一致で自動適用されうる
+- 読込確認: `~/.cursor/skills-repo/scripts/verify-skills.sh`
 
 ## プラン作成時（絵文字）
 
@@ -32,33 +38,27 @@ description: >-
 
 1. 並列で確認: `git status` / `git diff` / `git log -1`
 2. 関連ファイルのみ `git add`（`.env`・秘密・無関係ファイルは除外）
-3. **why 中心・1〜2 文**のコミットメッセージを考える
+3. **コミットメッセージは日本語**、**why 中心・1〜2 文**
 4. HEREDOC で `git commit`
 5. フック失敗時は **amend せず** 修正して新規 commit
 
-### push は厳禁
+### push ポリシー（二層）
 
-**NEVER** `git push` する（作業対象リポジトリに限る）。ユーザーが **そのターンで明示** しない限り:
+| リポジトリ | push |
+|------------|------|
+| **作業中のアプリ等** | **NEVER**（ユーザーがそのターンで「push して」と明示するまで） |
+| **flll/skills**（`~/.cursor/skills-repo`） | **積極的に** commit 後 `git push`（マルチマシン同期のため） |
 
-- `git push` / `git push -u` を実行しない
-- push 付きの `gh pr create` 等でリモートへ反映しない
+アプリ repo では `git push` / push 付き `gh pr create` を実行しない。完了報告で「push はしていません」とよい。
 
-完了報告で「push はしていません」と一言してよい。
-
-**例外**: ユーザーが「push して」「リモートに上げて」と **明示したターンのみ** push 可。
+Skills を編集したら **必ず** skills リポジトリで commit & push し、他マシンは `scripts/sync-skills.sh` で取り込む。
 
 ## ブランチ判断
 
 | 規模 | 動作 |
 |------|------|
-| **小さい** | 単一 concern・数ファイル・局所修正 → **ブランチを切らない**（現在ブランチのまま commit） |
-| **大きい** | 機能・リファクタ・複数トピック・後でまとめたい → ブランチ作成してから commit |
-
-| プレフィックス | 用途 |
-|----------------|------|
-| `future/<topic>` | 機能・リファクタ・複数コミットにまたがる作業 |
-| `chore/<topic>` | 設定・依存・ドキュメント・メンテ |
-| `fix/<topic>` | バグ修正（必要時） |
+| **小さい** | 単一 concern・数ファイル・局所修正 → **ブランチを切らない** |
+| **大きい** | 機能・リファクタ・複数トピック → `future/` / `chore/` / `fix/` でブランチ作成後 commit |
 
 - 命名: 短い kebab-case（例: `future/auth-refactor`, `chore/deps-bump`）
 - ブランチ作成後、Cursor MCP の `SetActiveBranch` が使えるなら実行
@@ -66,6 +66,6 @@ description: >-
 ## 他スキルとの関係
 
 - 秘密・GSM・`gh auth` → **infra-secrets**
-- プロジェクト固有の make / compose / デプロイ → **各リポジトリの README**
+- プロジェクト固有の make / compose → **各リポジトリの README**
 
 詳細: [reference.md](reference.md)

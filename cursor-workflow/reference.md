@@ -13,6 +13,15 @@
 📋 チェックリスト
 ```
 
+## Skills 自動読込 vs スラッシュ
+
+| 方式 | 説明 |
+|------|------|
+| 自動 | エージェントが `description` とタスクを照合し、関連 Skill の `SKILL.md` を読む |
+| 手動 | `/cursor-workflow` や `@cursor-workflow`（任意） |
+
+起動時に全 Skill の **全文** が毎回入るわけではない（name + description が索引）。
+
 ## ブランチ判断フロー
 
 ```mermaid
@@ -20,47 +29,39 @@ flowchart TD
   done[Plan_or_implementation_done]
   size{Large_or_multi_topic?}
   branch[Create_branch_future_or_chore]
-  commit[git_add_and_commit]
-  nopush[Never_git_push]
+  commit[git_add_and_commit_ja]
+  pushCheck{skills_repo?}
+  pushSkills[git_push_skills]
+  nopush[Never_push_app_repo]
   done --> size
   size -->|no| commit
   size -->|yes| branch --> commit
-  commit --> nopush
+  commit --> pushCheck
+  pushCheck -->|flll/skills| pushSkills
+  pushCheck -->|app_repo| nopush
 ```
 
-### 小さい変更の目安
-
-- 1 つのバグ修正・文言修正・設定 1 箇所
-- 変更ファイルがおおよそ 5 以下で同一トピック
-- レビュー単位として main に直接載せて問題ない
-
-### 大きい変更の目安
-
-- 新機能・複数モジュールにまたがるリファクタ
-- 後で PR にまとめたい・実験的で取り消しやすくしたい
-- 複数コミットに分ける予定がある
-
-## コミットメッセージ例（文面）
+## コミットメッセージ（日本語・例）
 
 ```
 Tailscale サイドカー用 compose を追加し、ホスト公開ポートを外した。
 
-GSM から secret を読む load スクリプトを追加し、OneDrive 同期を主経路から外した。
+GSM から secret を読むスクリプトを追加した。
 
-infra-secrets の reference に Cloudflare User Token の使い分けを追記した。
+cursor-workflow に日本語コミットと skills 専用 push 方針を追記した。
 ```
+
+英語メッセージは使わない（リポジトリの既存言語が英語のみのときはそのリポジトリの慣習に合わせてよいが、**ユーザー未指定時は日本語**）。
 
 ## push ポリシー
 
-| 状況 | push |
+| 対象 | push |
 |------|------|
-| プラン遂行・実装完了後（デフォルト） | **しない** |
+| アプリ・作業リポジトリ（デフォルト） | **しない** |
 | ユーザーが「push して」と明示 | する |
-| flll/skills 自体のメンテ（ユーザーが skills 更新を依頼） | ユーザーの指示に従う |
+| **flll/skills** | **編集後は積極的に push** |
 
-作業対象がアプリリポジトリのとき、エージェントは **commit まで** で止める。
-
-## コミット手順（再掲）
+## コミット手順
 
 ```bash
 git status
@@ -69,9 +70,17 @@ git log -1 --format='%s'
 
 git add <relevant-files>
 git commit -m "$(cat <<'EOF'
-Why-focused message in 1-2 sentences.
+変更の理由を日本語で1〜2文。
 
 EOF
 )"
 git status
+```
+
+## Skills 同期（flll/skills のみ push 可）
+
+```bash
+~/.cursor/skills-repo/scripts/sync-skills.sh
+~/.cursor/skills-repo/scripts/verify-skills.sh
+cd ~/.cursor/skills-repo && git push
 ```

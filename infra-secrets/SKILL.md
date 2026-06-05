@@ -47,11 +47,13 @@ gcloud secrets versions add cursor-secret \
 **Skills 同期（このリポジトリ）**
 
 ```bash
-gh auth status
-cd ~/.cursor/skills-repo && git pull && ./scripts/link-skills.sh
+~/.cursor/skills-repo/scripts/sync-skills.sh
+~/.cursor/skills-repo/scripts/verify-skills.sh
 ```
 
-**GitHub 操作** — `gh pr create`, `gh repo view`（`git push` は cursor-workflow の push 禁止に従う）
+編集後は **flll/skills のみ** `git commit` + `git push`（日本語メッセージ）。アプリ repo への push は禁止。
+
+**GitHub 操作** — `gh pr create`, `gh repo view`（アプリ repo への `git push` は cursor-workflow に従い禁止）
 
 ## Tailscale（汎用）
 
