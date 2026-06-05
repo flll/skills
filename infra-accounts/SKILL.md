@@ -39,6 +39,11 @@ Bananacraft から: `make skills-sync`
 - 起動: `make down` → `make up-tailscale`
 - `TS_AUTHKEY` を `~/.cursor/.env` に（空なら `make tailscale-keys`）
 
+## GitHub
+
+- **`gh auth login`** で認証（`GITHUB_TOKEN` は secret.env / GSM に載せない）
+- `git push` / `gh pr` / `make skills-sync` は gh の credential を使用
+
 ## 禁止
 
 秘密を git / チャットに載せない。`secret.env` を flll/skills にコミットしない。
