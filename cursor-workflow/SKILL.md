@@ -12,9 +12,23 @@ description: >-
 
 ## Skills の読み込み（スラッシュ不要）
 
-- Cursor は `~/.cursor/skills/<name>/SKILL.md` を **索引**（name + description）し、タスクに関連するとき **全文を読む**
-- **`/skill-name` は任意**（明示したいときだけ）。会話開始だけでも description 一致で自動適用されうる
-- 読込確認: `~/.cursor/skills-repo/scripts/verify-skills.sh`
+- 正本 URL: **https://github.com/flll/skills**（Settings の Remote Rule GitHub は SKILL.md 非対応なので使わない）
+- Cursor は `~/.cursor/skills/<name>/SKILL.md` を **索引**し、タスクに関連するとき **全文を読む**
+- **`/skill-name` は任意**。会話開始だけでも description 一致で自動適用されうる
+
+### 初回・不足時（エージェントが自動実行）
+
+ユーザーに **git clone を頼めない**。`verify-skills.sh` が失敗したら、作業前に **聞かず** 同期する:
+
+```bash
+~/.cursor/skills-repo/scripts/verify-skills.sh || \
+  ~/.cursor/skills-repo/scripts/bootstrap-skills.sh
+# bootstrap が無い場合（新マシン）:
+curl -fsSL https://raw.githubusercontent.com/flll/skills/main/scripts/bootstrap-skills.sh | bash
+~/.cursor/skills-repo/scripts/verify-skills.sh
+```
+
+`SKILLS_SYNC_MODE=curl` なら git を使わない。初回設定は [SETUP.md](https://github.com/flll/skills/blob/main/SETUP.md)。
 
 ## プラン作成時（絵文字）
 

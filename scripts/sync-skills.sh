@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # flll/skills を取得して ~/.cursor/skills に反映
-# 1) git pull + symlink  2) 未 clone / 未認証時は raw GitHub URL（Public 前提）
+# SKILLS_SYNC_MODE=curl → git 使わない（bootstrap-skills.sh と同じ）
+# デフォルト: git pull → 失敗時 curl
 set -euo pipefail
 
 SKILLS_REPO="${SKILLS_REPO:-$HOME/.cursor/skills-repo}"
 SKILLS_TARGET="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 GITHUB_RAW_BASE="${SKILLS_RAW_BASE:-https://raw.githubusercontent.com/flll/skills/main}"
-BRANCH="${SKILLS_BRANCH:-main}"
+SKILLS_SYNC_MODE="${SKILLS_SYNC_MODE:-auto}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # 固定リスト（README の Skills 表と揃える）
 SKILL_NAMES=(cursor-workflow infra-secrets)
@@ -43,12 +45,18 @@ sync_via_curl() {
   done
 }
 
-if command -v git >/dev/null 2>&1; then
+if [[ "$SKILLS_SYNC_MODE" == "curl" ]]; then
+  exec "$SCRIPT_DIR/bootstrap-skills.sh"
+fi
+
+if command -v git >/dev/null 2>&1 && [[ "$SKILLS_SYNC_MODE" != "curl" ]]; then
   if [[ -d "$SKILLS_REPO/.git" ]]; then
     sync_via_git && exit 0
   fi
-  if git clone "https://github.com/flll/skills.git" "$SKILLS_REPO" 2>/dev/null; then
-    sync_via_git && exit 0
+  if [[ "$SKILLS_SYNC_MODE" == "git" ]] || [[ "$SKILLS_SYNC_MODE" == "auto" ]]; then
+    if git clone "https://github.com/flll/skills.git" "$SKILLS_REPO" 2>/dev/null; then
+      sync_via_git && exit 0
+    fi
   fi
 fi
 

@@ -17,11 +17,18 @@ Public Cursor Agent Skills。複数プロジェクト共通。プロジェクト
 
 会話を始めるだけで、関連 Skill はエージェントが選んで適用しうる（全文が毎回すべて入るわけではない）。
 
-## Setup
+## Cursor 初期設定（1 回）
+
+**[SETUP.md](SETUP.md)** を参照。
+
+- 基盤 URL: `https://github.com/flll/skills`
+- Settings の **Remote Rule (GitHub)** は **使わない**（`.mdc` 専用で SKILL.md 非対応）
+- **User Rules** に正本 URL と「不足時は bootstrap を実行」を 1 行書く（推奨）
+- **git clone はユーザー不要** — エージェントが `bootstrap-skills.sh` / `sync-skills.sh` を実行
 
 ```bash
-gh auth login
-~/.cursor/skills-repo/scripts/sync-skills.sh
+# 手動で試す場合のみ
+curl -fsSL https://raw.githubusercontent.com/flll/skills/main/scripts/bootstrap-skills.sh | bash
 ~/.cursor/skills-repo/scripts/verify-skills.sh
 ```
 
