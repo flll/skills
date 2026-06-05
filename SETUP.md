@@ -48,6 +48,18 @@ gh auth login
 
 読み取り・同期だけなら **ログイン不要**（Public + raw URL / curl）。
 
+## Cloudflare CLI（Workers / Pages 用・任意）
+
+Node.js があるマシンで **1 回インストール**（ログインはユーザーが別途）:
+
+```bash
+npm install -g wrangler cf
+wrangler --version
+cf --version
+```
+
+認証はエージェントが勝手に行わない。未ログイン時はユーザーに `wrangler login` / `cf auth login` を依頼する（[infra-secrets](infra-secrets/SKILL.md) 参照）。
+
 ## 確認
 
 Settings → **Skills** に `cursor-workflow` / `infra-secrets` が見えるか、または Agent に「Skills 読めてる？」と聞いて `verify-skills.sh` の結果（名前のみ）を返してもらう。

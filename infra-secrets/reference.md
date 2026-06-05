@@ -35,6 +35,9 @@ TS_EXTRA_ARGS=--advertise-tags=tag:example --accept-dns=true
 | Tailscale OAuth | https://login.tailscale.com/admin/settings/trust-credentials |
 | Tailscale ACL | https://login.tailscale.com/admin/acls |
 | Cloudflare token | https://dash.cloudflare.com/profile/api-tokens |
+| Cloudflare Workers docs | https://developers.cloudflare.com/workers/ |
+| Cloudflare Pages docs | https://developers.cloudflare.com/pages/ |
+| cf CLI（technical preview） | https://blog.cloudflare.com/cf-cli-local-explorer/ |
 | GitHub CLI | https://cli.github.com/manual/gh_auth_login |
 
 ## gh
@@ -49,6 +52,53 @@ gh repo view OWNER/REPO
 ## gcloud
 
 ```bash
+gcloud auth list
 gcloud config set project lll-fish
 gcloud secrets versions list cursor-secret --project=lll-fish
+# Windows: stdout だと Unicode エラーになることがある → --out-file を使う
+gcloud secrets versions access latest --secret=cursor-secret --project=lll-fish \
+  --out-file="$HOME/.cursor/secrets/secret.env"
 ```
+
+## wrangler（Workers / Pages）
+
+```bash
+# インストール（マシンごと）
+npm install -g wrangler
+
+# 認証確認（未ログインならエラー → ユーザーに wrangler login を依頼）
+wrangler whoami
+
+# 開発・デプロイ（プロジェクト直下で）
+wrangler dev
+wrangler deploy
+wrangler pages deploy ./dist --project-name=MY_PROJECT
+```
+
+## cf（Cloudflare 統合 CLI・technical preview）
+
+```bash
+# インストール（wrangler と併用）
+npm install -g cf
+
+# 認証確認（未ログインならエラー → ユーザーに cf auth login を依頼）
+cf auth whoami
+
+# アカウント・DNS 等（例）
+cf accounts list
+cf zones list
+cf dns records list --zone example.com
+```
+
+## CLI 認証エラー時（エージェント向け）
+
+認証エラーを検出したら **1 回報告して中断**。ユーザーに次を案内（値は貼らない）:
+
+| CLI | ユーザーが実行するコマンド |
+|-----|---------------------------|
+| gcloud | `gcloud auth login`（ADC が必要なら `gcloud auth application-default login`） |
+| gh | `gh auth login` |
+| wrangler | `wrangler login` |
+| cf | `cf auth login` |
+
+よくある原因: 別マシンからの移行、OS 再インストール、OAuth セッション期限切れ。`secret.env` の API トークンだけでは `wrangler whoami` / `cf auth whoami` は通らない場合がある。

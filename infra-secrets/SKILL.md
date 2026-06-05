@@ -3,8 +3,9 @@ name: infra-secrets
 description: >-
   Cross-project secrets and infra auth for Cursor. GCP Secret Manager, secret.env,
   per-machine ~/.cursor/.env, gh for GitHub, Tailscale/Cloudflare/Docker tokens.
-  Use when fetching or rotating secrets, GSM, tailnet keys, cloud API auth, or
-  designing where credentials live across SSH hosts—never for app business logic.
+  Cloudflare Workers/Pages via wrangler and cf CLI (like gcloud). Use when fetching
+  or rotating secrets, GSM, tailnet keys, cloud API auth, Workers/Pages deploy,
+  or designing where credentials live across SSH hosts—never for app business logic.
 ---
 
 # infra-secrets
@@ -25,6 +26,8 @@ description: >-
 | マシン永続・高感度 | `~/.cursor/.env` | `TS_AUTHKEY`, `TAILNET`, `TS_EXTRA_ARGS` など（GSM に載せない運用可） |
 | GitHub | `gh` 設定 | `~/.config/gh/`（`gh auth login`） |
 | GCP 取得 | `gcloud` ADC | `gcloud auth login` 済みなら SA JSON パス不要 |
+| Cloudflare Workers/Pages | `wrangler` CLI | OAuth は `wrangler login`（マシンごとのローカルセッション） |
+| Cloudflare 全体（DNS 等） | `cf` CLI | OAuth は `cf auth login`（technical preview） |
 
 ## エージェントの標準手順
 
@@ -55,16 +58,64 @@ gcloud secrets versions add cursor-secret \
 
 **GitHub 操作** — `gh pr create`, `gh repo view`（アプリ repo への `git push` は cursor-workflow に従い禁止）
 
+## CLI 認証の原則（gcloud / gh / wrangler / cf 共通）
+
+1. **エージェントは CLI を第一選択** — REST を直接叩かず、`gcloud` / `gh` / `wrangler` / `cf` で操作する（`gcloud` と同様）。
+2. **ログインはユーザーが行う** — エージェントが `wrangler login` / `cf auth login` / `gcloud auth login` / `gh auth login` を**勝手に実行しない**（ブラウザ操作が必要）。
+3. **認証失敗時は再ログインを依頼して止まる** — 別マシン移行・OS クリーンインストール・セッション期限切れで CLI ログインが消えることがある。次のような出力なら **1 回報告して作業を中断**し、ユーザーに該当コマンドの再実行を依頼する:
+   - `not logged in` / `re-authenticate` / `authentication may have expired`
+   - `401` / `403` / `PERMISSION_DENIED` / `Failed to automatically retrieve account IDs`
+   - `Your default credentials were not found`（gcloud ADC）
+4. **再試行しない** — トークンを推測・生成したり、同じ認証エラーをループしない。
+5. **作業前の確認**（非対話・値は出さない）:
+
+```bash
+gcloud auth list
+gh auth status
+wrangler whoami
+cf auth whoami
+```
+
 ## Tailscale（汎用）
 
 - Auth key は **`tskey-auth-...`**。OAuth client secret（`tskey-client-...`）を `TS_AUTHKEY` にしない。
 - タグ付きノードは tailnet ACL に `tagOwners` が無いと失敗する。タグ名は**対象プロジェクト**の compose / ドキュメントを確認。
 - Docker サイドカー: `network_mode: service:tailscale-*`、`cap_add: [net_admin]`。鍵は compose の `env_file` で `~/.cursor/.env` を最後に読むと上書きしやすい。
 
-## Cloudflare
+## Cloudflare（Workers / Pages / DNS）
+
+**ツールの使い分け**
+
+| CLI | 用途 |
+|-----|------|
+| `wrangler` | Workers・Pages の開発・デプロイ（`wrangler dev`, `wrangler deploy`, `wrangler pages deploy`） |
+| `cf` | アカウント横断操作（DNS、zones、registrar 等・technical preview） |
+
+**インストール**（マシンごと・ログインは別）:
+
+```bash
+npm install -g wrangler cf
+```
+
+**認証**（ユーザーが手動。エージェントは依頼のみ）:
+
+```bash
+wrangler login          # Workers / Pages
+cf auth login           # 統合 CLI
+```
+
+**API トークン経由**（`secret.env` の `CLOUDFLARE_API_TOKEN`）も使えるが、OAuth セッションとは別。GSM 取り込み後に `CLOUDFLARE_ACCOUNT_ID` を `wrangler.toml` や環境変数に設定。
 
 - `CLOUDFLARE_API_TOKEN`: 通常 **User API Token**（ゾーン・権限を最小化）。`cfat_` は長期サービス向け。
 - `CLOUDFLARE_ACCOUNT_ID` はトークンと別。ダッシュボードの Account ID。
+
+**デプロイ例**（プロジェクトの `wrangler.toml` / README を先に確認）:
+
+```bash
+wrangler deploy
+wrangler pages deploy ./dist
+cf dns records list --zone example.com
+```
 
 ## コミット・ブランチ
 
