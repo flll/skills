@@ -16,6 +16,7 @@
 | `TAILNET` | `*.ts.net` |
 | `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` | DNS / API |
 | `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` | レジストリ |
+| `SNYK_TOKEN` | Snyk API（CI・別マシン用・任意） |
 
 含めない: `GITHUB_TOKEN`, 生の `TS_AUTHKEY`（方針上は `~/.cursor/.env` 推奨）
 
@@ -39,6 +40,8 @@ TS_EXTRA_ARGS=--advertise-tags=tag:example --accept-dns=true
 | Cloudflare Pages docs | https://developers.cloudflare.com/pages/ |
 | cf CLI（technical preview） | https://blog.cloudflare.com/cf-cli-local-explorer/ |
 | GitHub CLI | https://cli.github.com/manual/gh_auth_login |
+| Snyk アカウント / API token | https://app.snyk.io/account |
+| Snyk CLI ドキュメント | https://docs.snyk.io/developer-tools/snyk-cli |
 
 ## gh
 
@@ -90,6 +93,31 @@ cf zones list
 cf dns records list --zone example.com
 ```
 
+## snyk
+
+```bash
+# インストール（マシンごと）
+npm install -g snyk
+
+# 認証確認（未ログインならエラー → ユーザーに snyk auth を依頼）
+snyk whoami
+
+# OpenClaw モノレポ例
+cd ~/.openclaw
+snyk test --all-projects --severity-threshold=high
+snyk monitor --all-projects
+
+# Go + Docker 例
+snyk test
+snyk container test <image:tag>
+
+# CI 用（任意）
+export SNYK_TOKEN=<token>
+snyk test
+```
+
+Windows: `snyk` が見つからないときは `%APPDATA%\npm\snyk.cmd`
+
 ## CLI 認証エラー時（エージェント向け）
 
 認証エラーを検出したら **1 回報告して中断**。ユーザーに次を案内（値は貼らない）:
@@ -100,5 +128,6 @@ cf dns records list --zone example.com
 | gh | `gh auth login` |
 | wrangler | `wrangler login` |
 | cf | `cf auth login` |
+| snyk | `snyk auth`（または `SNYK_TOKEN` を設定） |
 
-よくある原因: 別マシンからの移行、OS 再インストール、OAuth セッション期限切れ。`secret.env` の API トークンだけでは `wrangler whoami` / `cf auth whoami` は通らない場合がある。
+よくある原因: 別マシンからの移行、OS 再インストール、OAuth セッション期限切れ。`secret.env` の API トークンだけでは `wrangler whoami` / `cf auth whoami` / `snyk whoami` は通らない場合がある。

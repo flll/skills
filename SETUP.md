@@ -60,6 +60,16 @@ cf --version
 
 認証はエージェントが勝手に行わない。未ログイン時はユーザーに `wrangler login` / `cf auth login` を依頼する（[infra-secrets](infra-secrets/SKILL.md) 参照）。
 
+## Snyk CLI（セキュリティスキャン用・任意）
+
+```bash
+npm install -g snyk
+snyk --version
+# 認証はユーザーが: snyk auth
+```
+
+スキャンはエージェントが `snyk test` / `snyk monitor` で実行（MCP より CLI 優先）。詳細は [infra-secrets](infra-secrets/SKILL.md)。
+
 ## 確認
 
 Settings → **Skills** に `cursor-workflow` / `infra-secrets` が見えるか、または Agent に「Skills 読めてる？」と聞いて `verify-skills.sh` の結果（名前のみ）を返してもらう。
