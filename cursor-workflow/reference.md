@@ -22,6 +22,30 @@
 
 起動時に全 Skill の **全文** が毎回入るわけではない（name + description が索引）。
 
+## モジュール化コミット（cherry-pick）
+
+```mermaid
+flowchart TD
+  done[Implementation_done]
+  multi{Multi_topic_diff?}
+  stack[Stack_commits_on_chore_split]
+  branches[Branch_candidates_from_main]
+  cherry[cherry_pick_per_module]
+  single[Single_commit_ja]
+  done --> multi
+  multi -->|yes| stack --> branches --> cherry
+  multi -->|no| single
+```
+
+| コミット種別 | 例 |
+|--------------|-----|
+| chore | gitignore、誤コミット防止 |
+| fix / refactor | バグ・基盤（依存が先） |
+| feat | 機能 |
+| config / docs | 設定・文書 |
+
+ブランチ例: `fix/win32-spawn-hide-shared`, `feat/discord-admin-thread-auth`, `chore/split-jun-2026`（全積み上げ）
+
 ## ブランチ判断フロー
 
 ```mermaid

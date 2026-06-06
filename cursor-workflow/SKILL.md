@@ -90,11 +90,24 @@ git push
 
 | 規模 | 動作 |
 |------|------|
-| **小さい** | 単一 concern・数ファイル・局所修正 → **ブランチを切らない** |
-| **大きい** | 機能・リファクタ・複数トピック → `future/` / `chore/` / `fix/` でブランチ作成後 commit |
+| **小さい** | 単一 concern・数ファイル・局所修正 → **ブランチを切らない**、1 コミット |
+| **大きい** | 機能・リファクタ・複数トピック → 下記「モジュール化コミット」を **能動的** に実行 |
 
-- 命名: 短い kebab-case（例: `future/auth-refactor`, `chore/deps-bump`）
+- 命名: 短い kebab-case（例: `fix/win32-spawn-hide`, `feat/discord-admin-thread-auth`）
 - ブランチ作成後、Cursor MCP の `SetActiveBranch` が使えるなら実行
+
+## モジュール化コミット（複数トピック時は能動実行）
+
+ユーザーが「コミットして」と言わなくても、**2 つ以上の concern** や **広い diff** が残ったら単一コミットにまとめない。
+
+1. `chore/split-<topic>` で作業し、**依存順**に小さな日本語コミット（`fix` → `refactor` → `feat` → `config` → `docs`）
+2. 同一ファイルに複数 concern → `git add -p`
+3. 秘密・ランタイム生成・無関係コピー（例: `skills/` ローカル鏡像、`media/inbound/`）は除外
+4. `main` から **機能別ブランチ候補** を切り、各コミットを **cherry-pick** で鮮明化:
+   - `fix/…` `feat/…` `config/…` + 統合確認用 `chore/split-…`
+5. 完了報告にコミット SHA 一覧とブランチ候補を載せる。**push は skills 以外しない**
+
+プロジェクトに `.cursor/rules/git-modular-commits.mdc` があればそちらの除外パス・命名を優先する。
 
 ## 他スキルとの関係
 
