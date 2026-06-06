@@ -5,23 +5,13 @@ description: >-
   OpenClaw cursor-bridge / voice-archive / spawn-hide 調査時に使う。
 ---
 
-# win32-console-hunt — Windows 可視コンソール駆逐
+# win32-console-hunt — debug-hunt の Windows 可視コンソール用プロファイル
 
-## 必須原則
+本 Skill は [debug-hunt](../debug-hunt/SKILL.md) の **Windows 可視コンソール駆逐** ドメインプロファイル。
+汎用原則・親/サブエージェント手順・委譲テンプレートは debug-hunt を参照。
 
-- **ユーザーに Discord で試させない** — 再現は `reproduce-bridge.mjs` / Gateway API / 内部 HTTP のみ
-- **原因特定までユーザー操作を要求しない** — 監視・再現・ログ採取はエージェントが能動実行
-- **安全装置**: watchdog が `node.exe` / `conhost.exe` / `cmd.exe` が閾値超過（node>40, conhost>8, cmd>15）で **再現を中断**し `oc kill` 相当を実行
-- **修正は別フェーズ** — 本 Skill は情報収集・仮説検証まで。`fix:` コミットはユーザー確認後
-- **再帰的手順**: 仮説 → 計装 → 再現 → ログ相関 → 子プロセスツリー → 仮説更新（最大 5 ラウンド）
-
-## いつ読むか
-
-- Windows で @kusanali 返信や VC 文字起こし時に cmd/conhost が大量表示
-- `node.exe` / `conhost.exe` が急増して PC が操作不能になる
-- `win32-spawn-hide` 適用後も再発
-
-詳細: [reference.md](reference.md)
+- プロファイル（仮説・再現・閾値）: [profile.md](profile.md)
+- OpenClaw 経路図: [reference.md](reference.md)
 
 ## クイックスタート
 
@@ -50,26 +40,22 @@ node $env:USERPROFILE\.cursor\skills\win32-console-hunt\scripts\reproduce-memory
 powershell -File $env:USERPROFILE\.cursor\skills\win32-console-hunt\scripts\snapshot-process-tree.ps1 -Label after
 ```
 
-## ログ
+## 仮説チェックリスト（H1–H6）
 
-| ファイル | 内容 |
-|----------|------|
-| `~/.openclaw/logs/spawn-trace.ndjson` | `OC_SPAWN_TRACE=1` 時の spawn 計装 |
-| `~/.openclaw/logs/spawn-watchdog.ndjson` | プロセス数監視 |
-| `~/.openclaw/logs/process-snapshot-*.json` | Win32_Process スナップショット |
+| ID | 仮説 |
+|----|------|
+| H1 | ESM import 順で spawn パッチが効かない |
+| H2 | SDK ネイティブ子が Node パッチ外 |
+| H3 | Gateway にパッチ未ロード |
+| H4 | detached:true が生きている |
+| H5 | composer-summary が bridge を二重起動 |
+| H6 | 計装不足で再発不可 |
 
-## 仮説チェックリスト
-
-| ID | 仮説 | 検証方法 |
-|----|------|----------|
-| H1 | ESM import 順で spawn パッチが効かない | spawn-trace の `spawnHidden_patched` vs `cp.spawn===patched` |
-| H2 | SDK ネイティブ子が Node パッチ外 | trace に rg/sandbox があるが spawn ログに無い |
-| H3 | Gateway にパッチ未ロード | Gateway 子プロセスの CommandLine に未パッチ spawn |
-| H4 | detached:true が生きている | trace の `detached_after` が true |
-| H5 | composer-summary が bridge を二重起動 | voice 再現時の bridge ログ |
-| H6 | 計装不足で再発不可 | 本 Skill 適用後に trace が取れるか |
+検証方法・閾値・ログパス: [profile.md](profile.md)
 
 ## 調査レポート形式
+
+debug-hunt 標準形式に従う（[debug-hunt/SKILL.md](../debug-hunt/SKILL.md) 参照）:
 
 1. 再現手順と成否
 2. H1–H6 の CONFIRMED / REJECTED / INCONCLUSIVE

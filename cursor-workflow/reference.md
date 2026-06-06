@@ -105,6 +105,15 @@ EOF
 git status
 ```
 
+## レアバグ調査
+
+再発困難・環境依存の不具合（プロセス増殖、ハング、レース条件など）では **debug-hunt** を読む。
+
+- 汎用フレーム: `~/.cursor/skills/debug-hunt/SKILL.md`
+- 親が計装 + watchdog、readonly サブエージェントに再現・仮説検証を委譲
+- ドメイン固有は `*-hunt` プロファイル（例: `win32-console-hunt/profile.md`）
+- fix は調査完了・ユーザー承認後の別フェーズ
+
 ## Skills 同期（flll/skills のみ push 可）
 
 ```bash

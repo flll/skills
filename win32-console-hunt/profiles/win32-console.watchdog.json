@@ -1,0 +1,55 @@
+{
+  "name": "win32-console",
+  "intervalMs": 5000,
+  "logPath": "~/.openclaw/logs/spawn-watchdog.ndjson",
+  "logPathEnv": "OC_SPAWN_WATCHDOG_PATH",
+  "baselineCapture": true,
+  "measure": {
+    "type": "powershell",
+    "script": "$names = @('node','cmd','conhost'); $result = @{}; foreach ($n in $names) { $procs = Get-Process -Name $n -ErrorAction SilentlyContinue; $result[$n] = @{ count = @($procs).Count; workingSetMB = [math]::Round((@($procs | Measure-Object WorkingSet64 -Sum).Sum / 1MB), 1) } }; $result | ConvertTo-Json -Compress"
+  },
+  "metrics": [
+    {
+      "name": "node",
+      "alert": {
+        "absolute": 25,
+        "delta": { "windowMs": 30000, "threshold": 10 }
+      },
+      "abort": {
+        "absolute": 40
+      }
+    },
+    {
+      "name": "conhost",
+      "alert": {
+        "delta": { "windowMs": 10000, "threshold": 3 }
+      },
+      "abort": {
+        "baselineDelta": 6
+      }
+    },
+    {
+      "name": "cmd",
+      "alert": {
+        "absolute": 10
+      },
+      "abort": {
+        "absolute": 15,
+        "baselineDelta": 8
+      }
+    }
+  ],
+  "abortActions": [
+    {
+      "type": "spawn",
+      "command": "node",
+      "args": ["~/.openclaw/scripts/oc.mjs", "kill"],
+      "detached": true,
+      "label": "oc_kill"
+    }
+  ],
+  "sampleOnAlert": {
+    "type": "powershell",
+    "script": "Get-CimInstance Win32_Process -Filter \"Name='node.exe' OR Name='cmd.exe' OR Name='conhost.exe'\" | Select-Object -First 8 ProcessId, ParentProcessId, Name, CommandLine | ConvertTo-Json -Compress"
+  }
+}
