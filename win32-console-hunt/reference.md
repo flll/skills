@@ -26,7 +26,7 @@ voice-archive → ffmpeg/ffprobe → STT → composer-summary → cursor-bridge 
 | メトリクス | ALERT | ABORT（再現中断） |
 |------------|-------|-------------------|
 | node.exe | >25 かつ 30s で +10 | >40 |
-| conhost.exe | >5 かつ 10s で +3 | >8 |
+| conhost.exe | 10s で +3（絶対値ではなくスパイク） | 起動時 baseline から +6 |
 | cmd.exe | >10 | >15 |
 
 ABORT 時: `node ~/.openclaw/scripts/oc.mjs kill` を実行し、レポートに記録。

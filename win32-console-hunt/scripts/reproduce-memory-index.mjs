@@ -3,8 +3,8 @@
  * VC memory index 経路の代替: triggerMemoryIndex() 直接呼び出し
  */
 import { homedir } from "node:os";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const OPENCLAW_ROOT = process.env.OPENCLAW_ROOT || join(homedir(), ".openclaw");
 process.env.OPENCLAW_ROOT = OPENCLAW_ROOT;
@@ -18,7 +18,7 @@ const pipelinePath = join(
 );
 
 console.log("[reproduce-memory-index] importing", pipelinePath);
-const { triggerMemoryIndex } = await import(pipelinePath);
+const { triggerMemoryIndex } = await import(pathToFileURL(pipelinePath).href);
 
 console.log("[reproduce-memory-index] calling triggerMemoryIndex()");
 triggerMemoryIndex((msg) => console.log(msg));

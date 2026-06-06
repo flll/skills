@@ -15,9 +15,12 @@ const INTERVAL_MS = Number(process.env.OC_SPAWN_WATCHDOG_INTERVAL_MS) || 5000;
 
 const THRESHOLDS = {
   node: { alert: 25, abort: 40, deltaAlert: 10, deltaWindowMs: 30_000 },
-  conhost: { alert: 5, abort: 8, deltaAlert: 3, deltaWindowMs: 10_000 },
-  cmd: { alert: 10, abort: 15 },
+  // conhost baseline on dev PCs is often >10 (Cursor/AMD/etc.) — use delta from startup baseline
+  conhost: { deltaAlert: 3, deltaAbort: 6, deltaWindowMs: 10_000 },
+  cmd: { alert: 10, abort: 15, deltaAbort: 8 },
 };
+
+let baseline = null;
 
 mkdirSync(LOG_DIR, { recursive: true });
 
@@ -96,6 +99,17 @@ function checkDelta(name, count, windowMs, deltaAlert) {
 
 let aborted = false;
 
+function captureBaseline() {
+  const m = measureProcesses();
+  baseline = {
+    node: m.node?.count ?? 0,
+    conhost: m.conhost?.count ?? 0,
+    cmd: m.cmd?.count ?? 0,
+  };
+  log({ level: "INFO", message: "baseline captured", baseline });
+}
+
+captureBaseline();
 log({ level: "INFO", message: "spawn-watchdog started", intervalMs: INTERVAL_MS, logPath: LOG_PATH });
 
 const timer = setInterval(() => {
@@ -108,6 +122,8 @@ const timer = setInterval(() => {
   const node = m.node?.count ?? 0;
   const conhost = m.conhost?.count ?? 0;
   const cmd = m.cmd?.count ?? 0;
+  const conhostDelta = baseline ? conhost - baseline.conhost : 0;
+  const cmdDelta = baseline ? cmd - baseline.cmd : 0;
 
   const entry = {
     level: "METRIC",
@@ -122,8 +138,12 @@ const timer = setInterval(() => {
 
   const alerts = [];
   if (node >= THRESHOLDS.node.abort) alerts.push(`node>=${THRESHOLDS.node.abort}`);
-  if (conhost >= THRESHOLDS.conhost.abort) alerts.push(`conhost>=${THRESHOLDS.conhost.abort}`);
-  if (cmd >= THRESHOLDS.cmd.abort) alerts.push(`cmd>=${THRESHOLDS.cmd.abort}`);
+  if (conhostDelta >= THRESHOLDS.conhost.deltaAbort) {
+    alerts.push(`conhost_delta>=${THRESHOLDS.conhost.deltaAbort}`);
+  }
+  if (cmd >= THRESHOLDS.cmd.abort || cmdDelta >= THRESHOLDS.cmd.deltaAbort) {
+    alerts.push(`cmd_high delta=${cmdDelta}`);
+  }
 
   if (
     node >= THRESHOLDS.node.alert &&
@@ -131,19 +151,18 @@ const timer = setInterval(() => {
   ) {
     alerts.push("node_delta");
   }
-  if (
-    conhost >= THRESHOLDS.conhost.alert &&
-    checkDelta("conhost", conhost, THRESHOLDS.conhost.deltaWindowMs, THRESHOLDS.conhost.deltaAlert)
-  ) {
-    alerts.push("conhost_delta");
+  if (checkDelta("conhost", conhost, THRESHOLDS.conhost.deltaWindowMs, THRESHOLDS.conhost.deltaAlert)) {
+    alerts.push("conhost_spike");
   }
-  if (cmd >= THRESHOLDS.cmd.alert) alerts.push("cmd_high");
+  if (cmd >= THRESHOLDS.cmd.alert) alerts.push("cmd_alert");
 
   if (alerts.length) {
     const samples = sampleCommandLines();
     const isAbort = alerts.some(
       (a) =>
-        a.startsWith("node>=") || a.startsWith("conhost>=") || a.startsWith("cmd>="),
+        a.startsWith("node>=") ||
+        a.startsWith("conhost_delta>=") ||
+        a.startsWith("cmd_high"),
     );
     log({
       level: isAbort ? "ABORT" : "ALERT",
