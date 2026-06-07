@@ -11,7 +11,7 @@ SKILLS_SYNC_MODE="${SKILLS_SYNC_MODE:-auto}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # 固定リスト（README の Skills 表と揃える）
-SKILL_NAMES=(cursor-workflow debug-hunt win32-console-hunt infra-secrets)
+SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt infra-secrets)
 
 sync_via_git() {
   mkdir -p "$(dirname "$SKILLS_REPO")"

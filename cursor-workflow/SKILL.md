@@ -88,12 +88,18 @@ git push
 
 ## ブランチ判断
 
+**ブランチ戦略は [git-dev-workflow](../git-dev-workflow/SKILL.md) に従う。** 新規プロジェクト・方針未確定時は **AskQuestion で init 質問してから** branch を切る／切らないを決める。エージェントが独断で決めない。
+
+init 済みで `trunk-main` のときの目安:
+
 | 規模 | 動作 |
 |------|------|
-| **小さい** | 単一 concern・数ファイル・局所修正 → **ブランチを切らない**、1 コミット |
-| **大きい** | 機能・リファクタ・複数トピック → 下記「モジュール化コミット」を **能動的** に実行 |
+| **小さい** | main 直コミット（ブランチを切らない） |
+| **大きい** | 原則 main 直（コミットを分割）。下記「モジュール化コミット」を能動実行。不確実な実験のみ `experiment/<名前>` |
 
-- 命名: 短い kebab-case（例: `fix/win32-spawn-hide`, `feat/discord-admin-thread-auth`）
+`short-feature` / `long-feature` 選択時は git-dev-workflow の該当節を参照。
+
+- 命名: 短い kebab-case（例: `fix/win32-spawn-hide`, `experiment/br-bump`）
 - ブランチ作成後、Cursor MCP の `SetActiveBranch` が使えるなら実行
 
 ## モジュール化コミット（複数トピック時は能動実行）
@@ -111,6 +117,7 @@ git push
 
 ## 他スキルとの関係
 
+- ブランチ戦略・init 質問 → **git-dev-workflow**（本スキルより優先）
 - 秘密・GSM・`gh auth` → **infra-secrets**
 - プロジェクト固有の make / compose → **各リポジトリの README**
 

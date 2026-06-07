@@ -6,7 +6,8 @@ Public Cursor Agent Skills。複数プロジェクト共通。プロジェクト
 
 | Skill | 用途 |
 |-------|------|
-| **cursor-workflow** | **必須** — プラン（絵文字）、遂行後のブランチ・**日本語** commit。**push は flll/skills のみ能動的 OK**、それ以外はユーザー明示まで禁止 |
+| **cursor-workflow** | **必須** — プラン（絵文字）、遂行後の**日本語** commit。**push は flll/skills のみ能動的 OK**、それ以外はユーザー明示まで禁止 |
+| **git-dev-workflow** | **必須** — 新規プロジェクト init でブランチ戦略を**ユーザーに質問**（agent 独断禁止） |
 | **debug-hunt** | レアバグ調査フレームワーク（親が計装・watchdog、readonly サブエージェントが再現・仮説検証） |
 | win32-console-hunt | debug-hunt の Windows 可視コンソール用プロファイル（OpenClaw cursor-bridge / spawn-hide） |
 | infra-secrets | 秘密・GSM・gh 認証（全プロジェクト） |
