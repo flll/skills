@@ -5,7 +5,7 @@ set -euo pipefail
 
 SKILLS_TARGET="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 GITHUB_RAW_BASE="${SKILLS_RAW_BASE:-https://raw.githubusercontent.com/flll/skills/main}"
-SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt infra-secrets)
+SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt runtime-vendor cursor-canvas-runtime infra-secrets)
 
 mkdir -p "$SKILLS_TARGET"
 
