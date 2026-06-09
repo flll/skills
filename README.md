@@ -10,9 +10,13 @@ Public Cursor Agent Skills。複数プロジェクト共通。プロジェクト
 | **git-dev-workflow** | **必須** — 新規プロジェクト init でブランチ戦略を**ユーザーに質問**（agent 独断禁止） |
 | **debug-hunt** | レアバグ調査フレームワーク（親が計装・watchdog、readonly サブエージェントが再現・仮説検証） |
 | win32-console-hunt | debug-hunt の Windows 可視コンソール用プロファイル（OpenClaw cursor-bridge / spawn-hide） |
+| **runtime-vendor** | 不透明ランタイムのベンダリング（Extract-and-rehost、5 層、vendor gitignore） |
+| cursor-canvas-runtime | runtime-vendor の Cursor Canvas プロファイル（kusanali / 51 シンボル / React shim） |
 | infra-secrets | 秘密・GSM・gh 認証（全プロジェクト） |
 
 `debug-hunt` が汎用層、`win32-console-hunt` など `*-hunt` がドメインプロファイル層（二層構成）。
+
+`runtime-vendor` が汎用層、`cursor-canvas-runtime` など `*-runtime` がドメインプロファイル層（同様の二層構成）。
 
 ## Skills の読み込み方（スラッシュ不要）
 

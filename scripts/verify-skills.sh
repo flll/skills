@@ -3,7 +3,7 @@
 set -euo pipefail
 
 TARGET="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
-SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt infra-secrets)
+SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt runtime-vendor cursor-canvas-runtime infra-secrets)
 ok=0
 fail=0
 
