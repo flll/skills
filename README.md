@@ -12,9 +12,10 @@ Public Cursor Agent Skills。複数プロジェクト共通。プロジェクト
 | win32-console-hunt | debug-hunt の Windows 可視コンソール用プロファイル（OpenClaw cursor-bridge / spawn-hide） |
 | **runtime-vendor** | 不透明ランタイムのベンダリング（Extract-and-rehost、5 層、vendor gitignore） |
 | cursor-canvas-runtime | runtime-vendor の Cursor Canvas プロファイル（kusanali / 51 シンボル / React shim） |
+| atomcam-hil-loop | ATOMCam 実機 HIL 自律ループ（make deploy-test 駆動、debug-hunt のドメインプロファイル） |
 | infra-secrets | 秘密・GSM・gh 認証（全プロジェクト） |
 
-`debug-hunt` が汎用層、`win32-console-hunt` など `*-hunt` がドメインプロファイル層（二層構成）。
+`debug-hunt` が汎用層、`win32-console-hunt` / `atomcam-hil-loop` などがドメインプロファイル層（二層構成）。
 
 `runtime-vendor` が汎用層、`cursor-canvas-runtime` など `*-runtime` がドメインプロファイル層（同様の二層構成）。
 
