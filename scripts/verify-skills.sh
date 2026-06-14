@@ -3,9 +3,11 @@
 set -euo pipefail
 
 TARGET="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
-SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt runtime-vendor cursor-canvas-runtime atomcam-hil-loop infra-secrets)
+BRAIN_DIR="${BRAIN_DIR:-$HOME/brain}"
+SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt runtime-vendor cursor-canvas-runtime atomcam-hil-loop infra-secrets second-brain ai-coach)
 ok=0
 fail=0
+warn=0
 
 echo "Skills dir: $TARGET"
 
@@ -30,5 +32,13 @@ for name in "${SKILL_NAMES[@]}"; do
 done
 
 echo "---"
-echo "verified: $ok  failed: $fail"
+if [[ -d "$BRAIN_DIR" && -f "$BRAIN_DIR/PROFILE.md" && -f "$BRAIN_DIR/INDEX.md" ]]; then
+  echo "OK: brain data dir ($BRAIN_DIR)"
+else
+  echo "WARN: brain not found or incomplete — clone: gh repo clone flll/brain $BRAIN_DIR"
+  warn=$((warn + 1))
+fi
+
+echo "---"
+echo "verified: $ok  failed: $fail  warnings: $warn"
 [[ "$fail" -eq 0 ]]

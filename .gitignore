@@ -3,3 +3,4 @@
 .env
 secret.env
 **/.env
+.wrangler/
