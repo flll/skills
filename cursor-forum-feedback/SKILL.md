@@ -71,7 +71,7 @@ node ~/.cursor/skills/cursor-forum-feedback/scripts/redact-logs.mjs <bundle-dir-
 
 ### 5. 投稿(両方モード)
 
-**A. API 鍵あり** — [SETUP.md](SETUP.md) 参照。`CURSOR_FORUM_API_KEY` + `CURSOR_FORUM_API_USER` が `~/.cursor/.env` 等にある場合:
+**A. API 鍵あり** — [SETUP.md](SETUP.md) 参照。一般ユーザーは `npx discourse-api-key-generator` で User API 鍵を取得。`~/.cursor/.env` に鍵がある場合:
 
 ```bash
 node ~/.cursor/skills/cursor-forum-feedback/scripts/post-to-forum.mjs \

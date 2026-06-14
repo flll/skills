@@ -6,8 +6,10 @@
  *   node post-to-forum.mjs --title "..." --body-file draft.md --category 22
  *   node post-to-forum.mjs --dry-run ...  (POST しない)
  *
- * Env: CURSOR_FORUM_API_KEY, CURSOR_FORUM_API_USER
- * または ~/.cursor/.env から読み込み
+ * Env (優先順):
+ *   User API: CURSOR_FORUM_USER_API_KEY + CURSOR_FORUM_USER_API_CLIENT_ID
+ *   Admin API: CURSOR_FORUM_API_KEY + CURSOR_FORUM_API_USER
+ * ~/.cursor/.env から読み込み
  */
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -54,8 +56,10 @@ async function main() {
     process.exit(1);
   }
 
-  const apiKey = process.env.CURSOR_FORUM_API_KEY;
-  const apiUser = process.env.CURSOR_FORUM_API_USER;
+  const userApiKey = process.env.CURSOR_FORUM_USER_API_KEY;
+  const userApiClientId = process.env.CURSOR_FORUM_USER_API_CLIENT_ID;
+  const adminApiKey = process.env.CURSOR_FORUM_API_KEY;
+  const adminApiUser = process.env.CURSOR_FORUM_API_USER;
 
   const payload = {
     title: args.title,
@@ -63,23 +67,38 @@ async function main() {
     category: args.category,
   };
 
-  if (args.dryRun || !apiKey || !apiUser) {
+  const authMode = userApiKey && userApiClientId
+    ? "user"
+    : adminApiKey && adminApiUser
+      ? "admin"
+      : null;
+
+  if (args.dryRun || !authMode) {
     console.log("[post-to-forum] dry-run (missing key or --dry-run)");
-    console.log(JSON.stringify({ url: FORUM_URL, headers: { "Api-Username": apiUser || "(unset)" }, payload }, null, 2));
-    if (!apiKey || !apiUser) {
-      console.log("\nSet CURSOR_FORUM_API_KEY and CURSOR_FORUM_API_USER in ~/.cursor/.env — see SETUP.md");
-      process.exit(apiKey ? 0 : 2);
+    const headers =
+      authMode === "user"
+        ? { "User-Api-Key": "(set)", "User-Api-Client-Id": userApiClientId }
+        : authMode === "admin"
+          ? { "Api-Key": "(set)", "Api-Username": adminApiUser }
+          : { auth: "(unset — use browser posting; see SETUP.md)" };
+    console.log(JSON.stringify({ url: FORUM_URL, authMode: authMode || "none", headers, payload }, null, 2));
+    if (!authMode) {
+      console.log("\nAPI keys: see SETUP.md (User API via npx discourse-api-key-generator, or browser manual post)");
+      process.exit(2);
     }
     process.exit(0);
   }
 
+  const headers = {
+    "Content-Type": "application/json",
+    ...(authMode === "user"
+      ? { "User-Api-Key": userApiKey, "User-Api-Client-Id": userApiClientId }
+      : { "Api-Key": adminApiKey, "Api-Username": adminApiUser }),
+  };
+
   const res = await fetch(FORUM_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Api-Key": apiKey,
-      "Api-Username": apiUser,
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 
