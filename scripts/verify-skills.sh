@@ -4,7 +4,7 @@ set -euo pipefail
 
 TARGET="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 BRAIN_DIR="${BRAIN_DIR:-$HOME/brain}"
-SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt runtime-vendor cursor-canvas-runtime atomcam-hil-loop infra-secrets second-brain ai-coach)
+SKILL_NAMES=(cursor-workflow git-dev-workflow debug-hunt win32-console-hunt runtime-vendor cursor-canvas-runtime atomcam-hil-loop infra-secrets second-brain ai-coach cursor-forum-feedback)
 ok=0
 fail=0
 warn=0
