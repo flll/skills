@@ -2,7 +2,7 @@
 name: cursor-forum-feedback
 description: >-
   Cursor コミュニティフォーラムへのバグ報告・機能改善・小さなフィードバック投稿を支援する。
-  クラッシュ時は Windows から必要ログを収集・秘匿処理し、Discourse API またはブラウザで投稿する。
+  クラッシュ時は Windows から必要ログを収集・秘匿処理し、ブラウザで手動投稿する。
   フォーラム投稿、cursor feedback、バグ報告、機能改善、クラッシュ報告、forum.cursor.com、
   Cursor Agent 改善に言及したとき、またはユーザーがフォーラムに送りたいときに使う。
 disable-model-invocation: true
@@ -69,18 +69,12 @@ node ~/.cursor/skills/cursor-forum-feedback/scripts/redact-logs.mjs <bundle-dir-
 
 環境ブロック・再現手順・Expected/Actual を必ず埋める。ログは**抜粋**(末尾500行+エラー行)を本文に貼るか zip を添付。
 
-### 5. 投稿(両方モード)
+### 5. 投稿（ブラウザ手動のみ）
 
-**A. API 鍵あり** — [SETUP.md](SETUP.md) 参照。一般ユーザーは `npx discourse-api-key-generator` で User API 鍵を取得。`~/.cursor/.env` に鍵がある場合:
-
-```bash
-node ~/.cursor/skills/cursor-forum-feedback/scripts/post-to-forum.mjs \
-  --title "..." --body-file draft.md --category 6
-```
-
-**投稿前に必ずユーザーに下書き全文を見せて確認を取る。**
-
-**B. API 鍵なし** — 下書きファイルを渡し、該当カテゴリ URL をブラウザで開く。ユーザーが Paste + Post。
+1. **投稿前に必ずユーザーに下書き全文を見せて確認を取る**
+2. 下書きを `~/brain/forum-drafts/` に保存（任意）
+3. 該当カテゴリ URL をブラウザで開く（[reference.md](reference.md)）
+4. ユーザーが Paste → Post
 
 ### 6. brain 連携(任意)
 
@@ -90,9 +84,8 @@ node ~/.cursor/skills/cursor-forum-feedback/scripts/post-to-forum.mjs \
 
 - `state.vscdb` 本体・brain/prompts の内容を zip や投稿に含めない
 - API キー・トークンを Skill や投稿本文に平文で書かない
-- ユーザー確認なしに API 自動投稿しない
 - hi@cursor.com へのメール送信を案内しない
 
 ## セットアップ
 
-Discourse API 鍵・マルチマシン同期: [SETUP.md](SETUP.md)
+下書き保存・ログ収集: [SETUP.md](SETUP.md)

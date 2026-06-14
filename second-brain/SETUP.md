@@ -51,3 +51,43 @@ node ~/brain/scripts/aw-daily-summary.mjs
 
 - 段階2: `brain/secrets/` を SOPS+age で暗号化 → `brain/secrets/README.md`
 - 段階3: 最も機微なものは `brain/private-local/`(.gitignore, push しない)
+
+## 7. 複数 PC + 同一 SSH 先（lll-legacy 等）
+
+**正しい分け方**: コードはリモート1か所、記憶は brain で同期、Cursor 設定は各 PC ローカル。
+
+| レイヤ | 置き場所 | 同期方法 |
+|--------|---------|---------|
+| **コード・git** | SSH 先（lll-legacy）のワークスペース | リモート1台が正本。どの PC からも同じフォルダを開く |
+| **第二の脳（brain）** | 各 PC の `~/brain` | `git pull`（開始時）/ フックが `commit+push`（セッション終了時） |
+| **skills** | 各 PC の `~/.cursor/skills` | `flll/skills` を bootstrap/sync |
+| **チャット履歴** | 各 PC ローカル（Cursor 内部） | **自動同期されない**。重要な判断は brain に蒸留 |
+| **フック・User Rules** | 各 PC の `~/.cursor/` | マシンごと。新 PC では SETUP を再適用 |
+| **秘密（.env）** | 各 PC の `~/.cursor/.env` | infra-secrets / GSM で各マシンに配布 |
+
+### 推奨フロー（毎セッション）
+
+1. **SSH Remote** で lll-legacy の同じプロジェクトを開く（コードの正本）
+2. ローカルで `cd ~/brain && git pull`（他 PC の prompts / 蒸留を取り込む）
+3. `PROFILE.md` `INDEX.md` を読んでから作業
+4. 終了時: フックが `prompts/` を brain に commit/push → 次の PC で pull すれば揃う
+
+### やらない方がよいこと
+
+- brain を SSH 先だけに置いて、ローカルフックから書こうとする（フックは **Cursor を起動した PC** で動く）
+- PC ごとに別ワークスペースを正本にする（どちらが最新か分からなくなる）
+- チャット履歴が PC 間で引き継がれる前提で運用する（引き継がれない）
+
+### イメージ
+
+```
+[PC-A] ──SSH──┐
+[PC-B] ──SSH──┼──> lll-legacy（コード正本）
+[PC-C] ──SSH──┘
+
+[PC-A] ~/brain ──git──> flll/brain <──git── [PC-B] ~/brain
+         ↑ フックが prompts を書く（ローカル）        ↑
+```
+
+**結論**: 複数 PC から同じ SSH 先でチャットするのは正しい使い方。揃えるべきは **リモートのコード** と **brain の git** であり、チャット UI の履歴そのものではない。
+

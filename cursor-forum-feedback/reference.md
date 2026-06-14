@@ -7,16 +7,7 @@
 | Bug Reports | 6 | https://forum.cursor.com/c/support/bug-report/6 |
 | Ideas / Feature Requests | 22 | https://forum.cursor.com/c/ideas/22 |
 
-Discourse API: `POST https://forum.cursor.com/posts.json`
-
-認証（自動投稿時のみ）:
-
-| 種別 | 誰が取得 | ヘッダ |
-|------|---------|--------|
-| User API 鍵（推奨・一般ユーザー） | `npx discourse-api-key-generator` | `User-Api-Key`, `User-Api-Client-Id` |
-| Admin API 鍵 | フォーラム管理者のみ | `Api-Key`, `Api-Username` |
-
-Preferences に「Generate API Key」UI はない。鍵なしならブラウザ手動投稿。
+投稿はブラウザ手動のみ（API 自動投稿は使わない）。
 
 ## Windows ログパス
 
